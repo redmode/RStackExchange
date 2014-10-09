@@ -21,7 +21,7 @@ set.seed(12345)
 library(stringr)
 library(dplyr)
 
-GetData <- function(query.id, params = NULL, site = "stackoverflow") {
+OnlineQuery <- function(query.id, params = NULL, site = "stackoverflow") {
   # Returns CSV data file for given query ID
   # Uses StackExchange Data Explorer
   # 
@@ -52,24 +52,61 @@ GetData <- function(query.id, params = NULL, site = "stackoverflow") {
 }
 
 
-# Tests------------------------------------------------------------------------
+# Tests for Online ------------------------------------------------------------
 
 # Non-parametric
-df <- GetData(952)
+df <- OnlineQuery(952)
 df
 
 # One parameter
-df <- GetData(785, params = list(UserId = "1796914"))
+df <- OnlineQuery(785, params = list(UserId = "1796914"))
 df
 
-df <- GetData(785, params = c(UserId = "1796914"))
+df <- OnlineQuery(785, params = c(UserId = "1796914"))
+df
+
+df <- OnlineQuery(8116, params = list(UserId = "1796914"))
 df
 
 # Created for this test (last 100 closed questions)
-df <- GetData(303686)
+df <- OnlineQuery(303686)
 df
 
 # Wrong query
-df <- GetData(-1)
+df <- OnlineQuery(-1)
 df
+
+
+# Tests for SQL ---------------------------------------------------------------
+
+# sql <- "SELECT TOP 10 Id, DisplayName, Reputation 
+#         FROM Users
+#         ORDER BY Reputation DESC"
+# url <- "http://data.stackexchange.com/stackoverflow/new/query/save/1"
+# 
+# 
+# 
+# library(httr)
+# 
+# 
+# api <- sprintf("%s?sql='%s'", url, sql)
+# 
+# 
+# # Makes request
+# response <- POST(url, 
+# #                  accept_json(),
+# #                  add_headers(.indicoio$header),
+#                  body = list(sql = sql)
+# )
+# stop_for_status(response)
+# 
+# # Returns results
+# answer <- content(response, as = "parsed", type = "application/json")
+# if (length(answer) < 2) {
+#   stop("Invalid result from API!")
+# }
+# answer
+# 
+# library(RCurl)
+# postForm(url, sql = sql)
 
