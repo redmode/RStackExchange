@@ -3,7 +3,7 @@
 # RStackExchange / John Horton
 # oDesk Contract #13552832
 #
-# Prototyping code
+# Main code
 #
 # Authors:
 # Alexander Gedranovich
@@ -20,37 +20,11 @@ set.seed(12345)
 
 library(stringr)
 library(dplyr)
+library(httr)
 
-OnlineQuery <- function(query.id, params = NULL, site = "stackoverflow") {
-  # Returns CSV data file for given query ID
-  # Uses StackExchange Data Explorer
-  # 
-  # Args:
-  #   query.id: ID for query at http://data.stackexchange.com
-  #   params: named character vector or list with query parameters
-  #   site: name of one of the StackExchange site
-  
-  stopifnot(!missing(query.id))
-  
-  se.url <- sprintf("http://data.stackexchange.com/%s/csv/%d", 
-                    site, query.id)
-  
-  if (!is.null(params)) {
-    params <- sprintf("?%s", str_c(names(params), "=", unlist(params),
-                                    collapse = "&"))
-    params <- str_replace(params, ",", "%2C")
-    params <- str_replace(params, " ", "%20")
-    se.url <- str_c(se.url, params)
-  }
-  
-  df <- tryCatch(read.table(se.url, header = T, sep = ",") %>% tbl_df(), 
-                 error = function(e) {
-                   warning(e)
-                   return(NULL)
-                 })
-  df
-}
-
+source("code/utils.R")
+source("code/OnlineQuery.R")
+source("code/APIQuery.R")
 
 # Tests for Online ------------------------------------------------------------
 
@@ -77,36 +51,10 @@ df <- OnlineQuery(-1)
 df
 
 
-# Tests for SQL ---------------------------------------------------------------
+# Test API---------------------------------------------------------------------
 
-# sql <- "SELECT TOP 10 Id, DisplayName, Reputation 
-#         FROM Users
-#         ORDER BY Reputation DESC"
-# url <- "http://data.stackexchange.com/stackoverflow/new/query/save/1"
-# 
-# 
-# 
-# library(httr)
-# 
-# 
-# api <- sprintf("%s?sql='%s'", url, sql)
-# 
-# 
-# # Makes request
-# response <- POST(url, 
-# #                  accept_json(),
-# #                  add_headers(.indicoio$header),
-#                  body = list(sql = sql)
-# )
-# stop_for_status(response)
-# 
-# # Returns results
-# answer <- content(response, as = "parsed", type = "application/json")
-# if (length(answer) < 2) {
-#   stop("Invalid result from API!")
-# }
-# answer
-# 
-# library(RCurl)
-# postForm(url, sql = sql)
+APIQuery(path = "questions")
+
+APIQuery(path = "answers", .fromdate = "2014-11-01")
+
 
